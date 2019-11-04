@@ -111,7 +111,7 @@ mod test;
 pub use crate::agent::Agent;
 pub use crate::error::Error;
 pub use crate::header::Header;
-pub use crate::request::Request;
+pub use crate::request::{Request, IpVersion};
 pub use crate::response::Response;
 
 // re-export

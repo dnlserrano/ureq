@@ -11,6 +11,7 @@ use rustls::StreamOwned;
 
 use crate::error::Error;
 use crate::unit::Unit;
+use crate::request::IpVersion;
 
 #[allow(clippy::large_enum_variant)]
 pub enum Stream {
@@ -167,8 +168,18 @@ pub(crate) fn connect_host(unit: &Unit, hostname: &str, port: u16) -> Result<Tcp
         return Err(Error::DnsFailed(format!("No ip address for {}", hostname)));
     }
 
-    // pick first ip, or should we randomize?
-    let sock_addr = ips[0];
+    let sock_addr =
+        if let Some(ip) = ips.iter().find(
+            |&&ip|
+            match (ip, unit.preferred_ip_version) {
+                (std::net::SocketAddr::V6(_), IpVersion::V6) => true,
+                (std::net::SocketAddr::V4(_), IpVersion::V4) => true,
+                _ => false,
+            }) {
+            *ip
+        } else {
+            ips[0]
+        };
 
     // connect with a configured timeout.
     let stream = match unit.timeout_connect {

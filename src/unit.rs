@@ -11,7 +11,7 @@ use crate::agent::AgentState;
 use crate::body::{self, Payload, SizedReader};
 use crate::header;
 use crate::stream::{self, connect_https, connect_test, Stream};
-use crate::{Error, Header, Request, Response};
+use crate::{Error, Header, Request, Response, IpVersion};
 
 use crate::pool::DEFAULT_HOST;
 
@@ -29,6 +29,7 @@ pub(crate) struct Unit {
     pub timeout_read: u64,
     pub timeout_write: u64,
     pub method: String,
+    pub preferred_ip_version: IpVersion,
 }
 
 impl Unit {
@@ -82,6 +83,7 @@ impl Unit {
             is_chunked,
             query_string,
             headers,
+            preferred_ip_version: req.preferred_ip_version,
             timeout_connect: req.timeout_connect,
             timeout_read: req.timeout_read,
             timeout_write: req.timeout_write,

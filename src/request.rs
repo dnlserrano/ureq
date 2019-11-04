@@ -21,6 +21,16 @@ lazy_static! {
         { Url::parse("http://localhost/").expect("Failed to parse URL_BASE") };
 }
 
+#[derive(Copy, Clone, Debug)]
+pub enum IpVersion {
+    V4,
+    V6,
+}
+
+impl Default for IpVersion {
+    fn default() -> Self { IpVersion::V6 }
+}
+
 /// Request instances are builders that creates a request.
 ///
 /// ```
@@ -45,6 +55,7 @@ pub struct Request {
     pub(crate) timeout_read: u64,
     pub(crate) timeout_write: u64,
     pub(crate) redirects: u32,
+    pub(crate) preferred_ip_version: IpVersion,
 }
 
 impl ::std::fmt::Debug for Request {
@@ -216,6 +227,20 @@ impl Request {
     /// ```
     pub fn set(&mut self, header: &str, value: &str) -> &mut Request {
         header::add_header(&mut self.headers, Header::new(header, value));
+        self
+    }
+
+    /// Set IP version to use.
+    ///
+    /// ```
+    /// let req = ureq::get("/my_page")
+    ///     .set_preferred_ip_version(IpVersion::V4)
+    ///     .call();
+    ///
+    /// assert_eq!(IpVersion::V4, req.preferred_api_version);
+    /// ```
+    pub fn set_preferred_ip_version(&mut self, ip_version: IpVersion) -> &mut Request {
+        self.preferred_ip_version = ip_version;
         self
     }
 
